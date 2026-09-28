@@ -40,16 +40,22 @@ df["장르"] = (
     .str[0]
 )
 
-# 총 관객을 숫자로 변환
+# 숫자 데이터 변환
 df["total_audi"] = pd.to_numeric(
     df["total_audi"],
     errors="coerce"
 )
 
-# 장르와 총 관객이 없는 데이터 제거
+df["first_scrn"] = pd.to_numeric(
+    df["first_scrn"],
+    errors="coerce"
+)
+
+# 필요한 데이터가 없는 행 제거
 df = df[
     (df["장르"] != "") &
-    (df["total_audi"].notna())
+    (df["total_audi"].notna()) &
+    (df["first_scrn"].notna())
 ].copy()
 
 
@@ -165,23 +171,19 @@ st.plotly_chart(fig3, use_container_width=True)
 # 그래프 3 해석
 # ==========================================
 
-# 가장 관객이 많은 영화
 most_audience_movie = df.loc[
     df["total_audi"].idxmax()
 ]
 
-# numpy를 이용해서 히스토그램 구간 계산
 counts, bin_edges = np.histogram(
     df["total_audi"],
     bins=20
 )
 
-# 영화가 가장 많이 들어 있는 구간
 max_bin_index = counts.argmax()
 
 bin_start = bin_edges[max_bin_index]
 bin_end = bin_edges[max_bin_index + 1]
-
 
 st.subheader("이 그래프로 알 수 있는 것")
 
@@ -198,9 +200,52 @@ st.write(
 
 
 # ==========================================
+# 그래프 4. 개봉일 스크린수와 총 관객의 관계
+# ==========================================
+
+st.divider()
+st.header("그래프 4. 개봉일 스크린수와 총 관객의 관계")
+
+fig4 = px.scatter(
+    df,
+    x="first_scrn",
+    y="total_audi",
+    color="장르",
+    hover_name="movieNm",
+    title="개봉일 스크린수와 총 관객의 관계",
+    labels={
+        "first_scrn": "개봉일 스크린수",
+        "total_audi": "총 관객",
+        "장르": "장르"
+    }
+)
+
+fig4.update_traces(
+    marker=dict(size=9),
+    hovertemplate=(
+        "<b>%{hovertext}</b><br>"
+        "개봉일 스크린수: %{x:,.0f}개<br>"
+        "총 관객: %{y:,.0f}명"
+        "<extra></extra>"
+    )
+)
+
+fig4.update_layout(
+    xaxis_title="개봉일 스크린수",
+    yaxis_title="총 관객",
+    legend_title="장르"
+)
+
+st.plotly_chart(fig4, use_container_width=True)
+
+st.subheader("이 그래프로 알 수 있는 것")
+st.write("여기에 개봉일 스크린수와 총 관객의 관계에 대해 알 수 있는 내용을 한 문장으로 작성하세요.")
+
+
+# ==========================================
 # 앞으로 추가할 그래프
 # ==========================================
 
 st.divider()
-st.header("그래프 4")
+st.header("그래프 5")
 st.write("다음 그래프를 여기에 추가하세요.")
