@@ -30,7 +30,7 @@ df = pd.read_csv(DATA_URL)
 # 데이터 전처리
 # ==========================================
 
-# 장르가 여러 개라면 첫 번째 장르만 사용
+# 여러 장르가 있으면 첫 번째 장르만 사용
 df["장르"] = (
     df["genre"]
     .fillna("")
@@ -45,7 +45,7 @@ df["total_audi"] = pd.to_numeric(
     errors="coerce"
 )
 
-# 빈 장르와 총 관객이 없는 데이터 제거
+# 장르와 총 관객이 없는 데이터 제거
 df = df[
     (df["장르"] != "") &
     (df["total_audi"].notna())
@@ -127,12 +127,77 @@ st.write("여기에 장르별 영화의 총 관객 규모에 대해 알 수 있�
 
 
 # ==========================================
-# 앞으로 추가할 그래프
+# 그래프 3. 총 관객 분포 히스토그램
 # ==========================================
 
 st.divider()
-st.header("그래프 3")
-st.write("다음 그래프를 여기에 추가하세요.")
+st.header("그래프 3. 총 관객 분포")
+
+fig3 = px.histogram(
+    df,
+    x="total_audi",
+    nbins=20,
+    title="영화별 총 관객 분포",
+    labels={
+        "total_audi": "총 관객 수",
+        "count": "영화 편수"
+    }
+)
+
+fig3.update_traces(
+    hovertemplate=(
+        "총 관객 구간: %{x}<br>"
+        "영화 편수: %{y}편"
+        "<extra></extra>"
+    )
+)
+
+fig3.update_layout(
+    xaxis_title="총 관객 수",
+    yaxis_title="영화 편수"
+)
+
+st.plotly_chart(fig3, use_container_width=True)
+
+
+# ==========================================
+# 그래프 3 해석
+# ==========================================
+
+# 가장 관객이 많은 영화
+most_audience_movie = df.loc[
+    df["total_audi"].idxmax()
+]
+
+# 히스토그램 구간 계산
+counts, bin_edges = pd.np.histogram(
+    df["total_audi"],
+    bins=20
+)
+
+max_bin_index = counts.argmax()
+
+bin_start = bin_edges[max_bin_index]
+bin_end = bin_edges[max_bin_index + 1]
+
+
+st.subheader("이 그래프로 알 수 있는 것")
+
+st.write(
+    f"대부분의 영화는 총 관객 약 "
+    f"{bin_start:,.0f}명~{bin_end:,.0f}명 구간에 몰려 있습니다."
+)
+
+st.write(
+    f"가장 관객이 많은 영화는 "
+    f"「{most_audience_movie['movieNm']}」로, "
+    f"총 관객은 {most_audience_movie['total_audi']:,.0f}명입니다."
+)
+
+
+# ==========================================
+# 앞으로 추가할 그래프
+# ==========================================
 
 st.divider()
 st.header("그래프 4")
