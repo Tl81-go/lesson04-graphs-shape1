@@ -243,9 +243,68 @@ st.write("여기에 개봉일 스크린수와 총 관객의 관계에 대해 알
 
 
 # ==========================================
+# 그래프 5. 장르별 총 관객 상자 그림
+# ==========================================
+
+st.divider()
+st.header("그래프 5. 장르별 총 관객 분포")
+
+# 장르별 영화 편수 계산
+genre_movie_count = df["장르"].value_counts()
+
+# 영화가 10편 이상인 장르만 선택
+valid_genres = genre_movie_count[
+    genre_movie_count >= 10
+].index
+
+box_df = df[
+    df["장르"].isin(valid_genres)
+].copy()
+
+
+# 상자 그림 생성
+fig5 = px.box(
+    box_df,
+    x="장르",
+    y="total_audi",
+    color="장르",
+    points="outliers",
+    custom_data=["movieNm"],
+    title="영화가 10편 이상인 장르의 총 관객 분포",
+    labels={
+        "장르": "장르",
+        "total_audi": "총 관객"
+    }
+)
+
+# 이상치에 마우스를 올렸을 때 영화명 표시
+fig5.update_traces(
+    hovertemplate=(
+        "<b>%{customdata[0]}</b><br>"
+        "총 관객: %{y:,.0f}명"
+        "<extra></extra>"
+    )
+)
+
+fig5.update_layout(
+    xaxis_title="장르",
+    yaxis_title="총 관객",
+    showlegend=False
+)
+
+st.plotly_chart(fig5, use_container_width=True)
+
+st.subheader("이 그래프로 알 수 있는 것")
+st.write(
+    "영화가 10편 이상인 장르들의 총 관객 분포와 "
+    "장르별 관객의 중앙값 및 이상치를 비교할 수 있습니다."
+)
+
+
+# ==========================================
 # 앞으로 추가할 그래프
 # ==========================================
 
 st.divider()
-st.header("그래프 5")
+st.header("그래프 6")
 st.write("다음 그래프를 여기에 추가하세요.")
