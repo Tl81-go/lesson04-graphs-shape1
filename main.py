@@ -1,6 +1,7 @@
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 
 
@@ -169,12 +170,13 @@ most_audience_movie = df.loc[
     df["total_audi"].idxmax()
 ]
 
-# 히스토그램 구간 계산
-counts, bin_edges = pd.np.histogram(
+# numpy를 이용해서 히스토그램 구간 계산
+counts, bin_edges = np.histogram(
     df["total_audi"],
     bins=20
 )
 
+# 영화가 가장 많이 들어 있는 구간
 max_bin_index = counts.argmax()
 
 bin_start = bin_edges[max_bin_index]
@@ -202,4 +204,3 @@ st.write(
 st.divider()
 st.header("그래프 4")
 st.write("다음 그래프를 여기에 추가하세요.")
-
