@@ -40,6 +40,15 @@ df["장르"] = (
     .str[0]
 )
 
+# 제작 국가가 여러 개라면 첫 번째 국가만 사용
+df["제작 국가"] = (
+    df["nation"]
+    .fillna("")
+    .astype(str)
+    .str.split("|")
+    .str[0]
+)
+
 # 숫자 데이터 변환
 df["total_audi"] = pd.to_numeric(
     df["total_audi"],
@@ -59,6 +68,7 @@ df["first_week_audi"] = pd.to_numeric(
 # 필요한 데이터가 없는 행 제거
 df = df[
     (df["장르"] != "") &
+    (df["제작 국가"] != "") &
     (df["total_audi"].notna()) &
     (df["first_scrn"].notna()) &
     (df["first_week_audi"].notna())
@@ -261,10 +271,8 @@ st.write(
 st.divider()
 st.header("그래프 5. 장르별 총 관객 분포")
 
-# 장르별 영화 편수 계산
 genre_movie_count = df["장르"].value_counts()
 
-# 영화가 10편 이상인 장르만 선택
 valid_genres = genre_movie_count[
     genre_movie_count >= 10
 ].index
@@ -360,9 +368,51 @@ st.write(
 
 
 # ==========================================
+# 그래프 7. 제작 국가 → 장르 선버스트
+# ==========================================
+
+st.divider()
+st.header("그래프 7. 제작 국가와 장르별 영화 분포")
+
+# 제작 국가 → 장르별 영화 편수 계산
+sunburst_df = (
+    df.groupby(["제작 국가", "장르"])
+    .size()
+    .reset_index(name="영화편수")
+)
+
+fig7 = px.sunburst(
+    sunburst_df,
+    path=["제작 국가", "장르"],
+    values="영화편수",
+    title="제작 국가에서 장르로 내려가는 영화 분포"
+)
+
+fig7.update_traces(
+    hovertemplate=(
+        "<b>%{label}</b><br>"
+        "영화 편수: %{value}편"
+        "<extra></extra>"
+    )
+)
+
+fig7.update_layout(
+    margin=dict(t=50, l=10, r=10, b=10)
+)
+
+st.plotly_chart(fig7, use_container_width=True)
+
+st.subheader("이 그래프로 알 수 있는 것")
+st.write(
+    "제작 국가별로 어떤 장르의 영화가 많이 포함되어 있는지와 "
+    "각 국가와 장르의 영화 편수 비중을 비교할 수 있습니다."
+)
+
+
+# ==========================================
 # 앞으로 추가할 그래프
 # ==========================================
 
 st.divider()
-st.header("그래프 7")
+st.header("그래프 8")
 st.write("다음 그래프를 여기에 추가하세요.")
