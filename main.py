@@ -51,11 +51,17 @@ df["first_scrn"] = pd.to_numeric(
     errors="coerce"
 )
 
+df["first_week_audi"] = pd.to_numeric(
+    df["first_week_audi"],
+    errors="coerce"
+)
+
 # 필요한 데이터가 없는 행 제거
 df = df[
     (df["장르"] != "") &
     (df["total_audi"].notna()) &
-    (df["first_scrn"].notna())
+    (df["first_scrn"].notna()) &
+    (df["first_week_audi"].notna())
 ].copy()
 
 
@@ -98,7 +104,9 @@ fig1.update_layout(
 st.plotly_chart(fig1, use_container_width=True)
 
 st.subheader("이 그래프로 알 수 있는 것")
-st.write("여기에 장르별 영화 편수에 대해 알 수 있는 내용을 한 문장으로 작성하세요.")
+st.write(
+    "여기에 장르별 영화 편수에 대해 알 수 있는 내용을 한 문장으로 작성하세요."
+)
 
 
 # ==========================================
@@ -130,7 +138,9 @@ fig2.update_layout(
 st.plotly_chart(fig2, use_container_width=True)
 
 st.subheader("이 그래프로 알 수 있는 것")
-st.write("여기에 장르별 영화의 총 관객 규모에 대해 알 수 있는 내용을 한 문장으로 작성하세요.")
+st.write(
+    "여기에 장르별 영화의 총 관객 규모에 대해 알 수 있는 내용을 한 문장으로 작성하세요."
+)
 
 
 # ==========================================
@@ -239,7 +249,9 @@ fig4.update_layout(
 st.plotly_chart(fig4, use_container_width=True)
 
 st.subheader("이 그래프로 알 수 있는 것")
-st.write("여기에 개봉일 스크린수와 총 관객의 관계에 대해 알 수 있는 내용을 한 문장으로 작성하세요.")
+st.write(
+    "여기에 개봉일 스크린수와 총 관객의 관계에 대해 알 수 있는 내용을 한 문장으로 작성하세요."
+)
 
 
 # ==========================================
@@ -261,8 +273,6 @@ box_df = df[
     df["장르"].isin(valid_genres)
 ].copy()
 
-
-# 상자 그림 생성
 fig5 = px.box(
     box_df,
     x="장르",
@@ -277,7 +287,6 @@ fig5 = px.box(
     }
 )
 
-# 이상치에 마우스를 올렸을 때 영화명 표시
 fig5.update_traces(
     hovertemplate=(
         "<b>%{customdata[0]}</b><br>"
@@ -302,9 +311,58 @@ st.write(
 
 
 # ==========================================
+# 그래프 6. 개봉일 스크린수와 총 관객의 버블 그래프
+# ==========================================
+
+st.divider()
+st.header("그래프 6. 첫 주 관객을 크기로 나타낸 버블 그래프")
+
+fig6 = px.scatter(
+    df,
+    x="first_scrn",
+    y="total_audi",
+    size="first_week_audi",
+    color="장르",
+    hover_name="movieNm",
+    size_max=45,
+    title="개봉일 스크린수 · 첫 주 관객 · 총 관객의 관계",
+    labels={
+        "first_scrn": "개봉일 스크린수",
+        "total_audi": "총 관객",
+        "first_week_audi": "첫 주 관객",
+        "장르": "장르"
+    }
+)
+
+fig6.update_traces(
+    hovertemplate=(
+        "<b>%{hovertext}</b><br>"
+        "개봉일 스크린수: %{x:,.0f}개<br>"
+        "총 관객: %{y:,.0f}명<br>"
+        "첫 주 관객: %{marker.size:,.0f}명"
+        "<extra></extra>"
+    )
+)
+
+fig6.update_layout(
+    xaxis_title="개봉일 스크린수",
+    yaxis_title="총 관객",
+    legend_title="장르"
+)
+
+st.plotly_chart(fig6, use_container_width=True)
+
+st.subheader("이 그래프로 알 수 있는 것")
+st.write(
+    "점의 크기를 통해 첫 주 관객이 많은 영화가 "
+    "개봉일 스크린수와 총 관객에서 어떤 위치에 있는지 살펴볼 수 있습니다."
+)
+
+
+# ==========================================
 # 앞으로 추가할 그래프
 # ==========================================
 
 st.divider()
-st.header("그래프 6")
+st.header("그래프 7")
 st.write("다음 그래프를 여기에 추가하세요.")
